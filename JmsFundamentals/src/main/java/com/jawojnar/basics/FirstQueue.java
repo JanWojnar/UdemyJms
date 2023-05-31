@@ -34,6 +34,8 @@ public class FirstQueue {
 
             producer.send(message);
 
+            System.out.println("Message Sent: " + message.getText());
+
             MessageConsumer consumer = session.createConsumer(queue);
 
             connection.start();
