@@ -36,13 +36,20 @@ public class FirstQueue {
 
             System.out.println("Message Sent: " + message.getText());
 
-            MessageConsumer consumer = session.createConsumer(queue);
+            MessageConsumer consumer1 = session.createConsumer(queue);
+            MessageConsumer consumer2 = session.createConsumer(queue);
 
             connection.start();
 
-            TextMessage messageReceived = (TextMessage) consumer.receive(5000L);
+            TextMessage messageReceived = (TextMessage) consumer1.receive(5000L);
+            System.out.println("Message Received by consumer 1: " + messageReceived.getText());
 
-            System.out.println("Message Received: " + messageReceived.getText());
+            TextMessage messageReceivedd = (TextMessage) consumer2.receive(5000L);
+            try{
+                System.out.println("Message Received by consumer 2: " + messageReceivedd.getText());
+            } catch (NullPointerException np){
+                System.out.println("Second consumer in session does not receive message, because it was consumed in this session by first consumer!");
+            }
 
         } catch (NamingException | JMSException e) {
             e.printStackTrace();
