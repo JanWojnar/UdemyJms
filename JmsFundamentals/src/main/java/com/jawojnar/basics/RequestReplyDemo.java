@@ -12,24 +12,36 @@ public class RequestReplyDemo {
 
         InitialContext context = new InitialContext();
         Queue queue = (Queue) context.lookup("queue/requestQueue");
-        Queue replyQueue = (Queue) context.lookup("queue/replyQueue");
+        // Queue replyQueue = (Queue) context.lookup("queue/replyQueue"); // Takes queue from Broker
 
 
         try(ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory()){
             JMSContext jmsContext = cf.createContext();
+            TemporaryQueue replyQueue = jmsContext.createTemporaryQueue(); // Dynamically created queue
 
+            // App1
             JMSProducer producer = jmsContext.createProducer();
-            producer.send(queue, "Ugghhhh");
+            TextMessage message = jmsContext.createTextMessage("Ugghhhh");
+            message.setJMSReplyTo(replyQueue);
+            producer.send(queue, message);
+            System.out.println("App1 has sent message.");
 
+            //App2
             JMSConsumer consumer = jmsContext.createConsumer(queue);
-            String messageReceived = consumer.receiveBody(String.class);
-            System.out.println(messageReceived);
+            TextMessage messageReceived = (TextMessage) consumer.receive();
+            System.out.println("App2 has received message: " + messageReceived.getText());
 
+            //App2
             JMSProducer replyProducer = jmsContext.createProducer();
-            replyProducer.send(replyQueue, "Ur awesome!");
+            replyProducer.send(messageReceived.getJMSReplyTo(), "Ur awesome!");
+            System.out.println("App2 has sent reply back.");
 
+            //App1
             JMSConsumer replyConsumer = jmsContext.createConsumer(replyQueue);
-            System.out.println(consumer.receiveBody(String.class));
+            System.out.println("App1 has received reply: " + replyConsumer.receiveBody(String.class));
+
+        } catch (JMSException e) {
+            throw new RuntimeException(e);
         }
     }
 }
