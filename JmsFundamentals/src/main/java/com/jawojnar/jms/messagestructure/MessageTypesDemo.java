@@ -3,7 +3,7 @@ package com.jawojnar.jms.messagestructure;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.JMSProducer;
-import javax.jms.MapMessage;
+import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -44,12 +44,25 @@ public class MessageTypesDemo {
             // System.out.println("Message received: " + streamMessageReceived.readBoolean());
             // System.out.println("Message received: " + streamMessageReceived.readFloat());
 
-            MapMessage mapMessage = jmsContext.createMapMessage();
-            mapMessage.setBoolean("isCreditAvailable", true);
-            producer.send(queue, mapMessage);
+            // MapMessage
+            // MapMessage mapMessage = jmsContext.createMapMessage();
+            // mapMessage.setBoolean("isCreditAvailable", true);
+            // producer.send(queue, mapMessage);
 
-            MapMessage mapMessageReceived = (MapMessage) jmsContext.createConsumer(queue).receive();
-            System.out.println("Message received: " + mapMessageReceived.getBoolean("isCreditAvailable"));
+            // MapMessage mapMessageReceived = (MapMessage) jmsContext.createConsumer(queue).receive();
+            // System.out.println("Message received: " + mapMessageReceived.getBoolean("isCreditAvailable"));
+
+            ObjectMessage objectMessage = jmsContext.createObjectMessage();
+            Patient patient = new Patient();
+            patient.setId(123);
+            patient.setName("Kowalski");
+            objectMessage.setObject(patient);
+            producer.send(queue, objectMessage);
+
+            ObjectMessage objectMessageReceived = (ObjectMessage) jmsContext.createConsumer(queue).receive();
+            Patient patientReceived = (Patient) objectMessageReceived.getObject();
+            System.out.println("Message received: " + patientReceived.getId());
+            System.out.println("Message received: " + patientReceived.getName());
 
         } catch (JMSException e) {
             e.printStackTrace();
