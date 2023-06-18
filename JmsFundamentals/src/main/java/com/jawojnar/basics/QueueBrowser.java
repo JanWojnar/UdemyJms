@@ -1,16 +1,11 @@
 package com.jawojnar.basics;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
+import javax.jms.*;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-public class FirstQueue {
+import java.util.Enumeration;
+
+public class QueueBrowser {
     public static void main(String[] args) {
         System.out.println("Hello world!");
 
@@ -30,26 +25,33 @@ public class FirstQueue {
 
             MessageProducer producer = session.createProducer(queue);
 
-            TextMessage message = session.createTextMessage("I am creator!!!");
+            TextMessage message1 = session.createTextMessage("Ohhh");
+            TextMessage message2 = session.createTextMessage("Ahhh");
 
-            producer.send(message);
+            producer.send(message1);
+            producer.send(message2);
 
-            System.out.println("Message Sent: " + message.getText());
+            javax.jms.QueueBrowser browser = session.createBrowser(queue);
 
-            MessageConsumer consumer1 = session.createConsumer(queue);
-            MessageConsumer consumer2 = session.createConsumer(queue);
+            Enumeration messagesEnum = browser.getEnumeration();
 
+            System.out.println();
+            while(messagesEnum.hasMoreElements()){
+                TextMessage eachMessage = (TextMessage) messagesEnum.nextElement();
+                System.out.println("Browsing: " + eachMessage.getText());
+            }
+
+            MessageConsumer consumer = session.createConsumer(queue);
             connection.start();
 
-            TextMessage messageReceived = (TextMessage) consumer1.receive(5000L);
-            System.out.println("Message Received by consumer 1: " + messageReceived.getText());
+            System.out.println("\nAfter browsing:\n");
 
-            TextMessage messageReceivedd = (TextMessage) consumer2.receive(5000L);
-            try{
-                System.out.println("Message Received by consumer 2: " + messageReceivedd.getText());
-            } catch (NullPointerException np){
-                System.out.println("Second consumer in session does not receive message, because it was consumed in this session by first consumer!");
-            }
+            TextMessage messageReceived = (TextMessage) consumer.receive(5000L);
+            System.out.println(messageReceived.getText());
+            messageReceived = (TextMessage) consumer.receive(5000L);
+            System.out.println(messageReceived.getText());
+            System.out.println("\nMessages was browsed without consuming them");
+
 
         } catch (NamingException | JMSException e) {
             e.printStackTrace();
