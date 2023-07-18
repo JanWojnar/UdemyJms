@@ -19,7 +19,7 @@ public class ClaimManagement {
 //            JMSConsumer consumer = jmsContext.createConsumer(claimQueue, "hospitalId=1");
 //            JMSConsumer consumer = jmsContext.createConsumer(claimQueue, "amount BETWEEN 900 AND 5000");
 //            JMSConsumer consumer = jmsContext.createConsumer(claimQueue, "doctorName LIKE 'Joh_'");
-            JMSConsumer consumer = jmsContext.createConsumer(claimQueue, "doctorType IN ('neuro','gyna')");
+            JMSConsumer consumer = jmsContext.createConsumer(claimQueue, "doctorType IN ('neuro','psych') OR JMSPriority BETWEEN 3 AND 6");
 
             ObjectMessage objectMessage = jmsContext.createObjectMessage();
 //            objectMessage.setIntProperty("hospitalId", 1);
@@ -27,7 +27,7 @@ public class ClaimManagement {
 //            objectMessage.setStringProperty("doctorName", "John");
             objectMessage.setStringProperty("doctorType", "gyna");
 
-            Claim claim = Claim.builder().hospitalId(1).amount(1000.0).doctorName("John").doctorType("gyna").insuranceProvider("blue cross").build();
+            Claim claim = Claim.builder().hospitalId(1).amount(1000.0).doctorName("John").doctorType("sryna").insuranceProvider("blue cross").build();
             objectMessage.setObject(claim);
 
             producer.send(claimQueue,objectMessage);
