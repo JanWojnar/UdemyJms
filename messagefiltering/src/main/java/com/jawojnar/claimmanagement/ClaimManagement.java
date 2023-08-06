@@ -19,13 +19,19 @@ public class ClaimManagement {
 //            JMSConsumer consumer = jmsContext.createConsumer(claimQueue, "hospitalId=1");
 //            JMSConsumer consumer = jmsContext.createConsumer(claimQueue, "amount BETWEEN 900 AND 5000");
 //            JMSConsumer consumer = jmsContext.createConsumer(claimQueue, "doctorName LIKE 'Joh_'");
-            JMSConsumer consumer = jmsContext.createConsumer(claimQueue, "doctorType IN ('neuro','psych') OR JMSPriority BETWEEN 3 AND 6");
+//            JMSConsumer consumer = jmsContext.createConsumer(claimQueue, "doctorType IN ('neuro','psych') OR JMSPriority BETWEEN 3 AND 6");
+//            JMSConsumer consumer = jmsContext.createConsumer(claimQueue, "insuranceProvider IN ('blue cross','american')");
+//            JMSConsumer consumer = jmsContext.createConsumer(claimQueue, "doctorName LIKE 'H%'");
+            JMSConsumer consumer = jmsContext.createConsumer(claimQueue, "claimAmount%10=0");
+
 
             ObjectMessage objectMessage = jmsContext.createObjectMessage();
-//            objectMessage.setIntProperty("hospitalId", 1);
-//            objectMessage.setDoubleProperty("amount", 5000);
-//            objectMessage.setStringProperty("doctorName", "John");
+            objectMessage.setIntProperty("hospitalId", 1);
+            objectMessage.setDoubleProperty("amount", 5000);
+            objectMessage.setStringProperty("doctorName", "HARRY");
+            objectMessage.setDoubleProperty("claimAmount", 1000.0);
             objectMessage.setStringProperty("doctorType", "gyna");
+            objectMessage.setStringProperty("insuranceProvider", "blue cross");
 
             Claim claim = Claim.builder().hospitalId(1).amount(1000.0).doctorName("John").doctorType("sryna").insuranceProvider("blue cross").build();
             objectMessage.setObject(claim);
