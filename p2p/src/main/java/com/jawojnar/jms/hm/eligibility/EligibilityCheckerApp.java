@@ -18,7 +18,7 @@ public class EligibilityCheckerApp {
 
         try (
                 ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory();
-                JMSContext jmsContext = cf.createContext();
+                JMSContext jmsContext = cf.createContext("eligibilityuser","eligibilitypass");
         ){
             JMSConsumer consumer = jmsContext.createConsumer(requestQueue);
             consumer.setMessageListener(new EligibilityCheckerListener());
