@@ -34,6 +34,8 @@ public class ReservationSystemListener implements MessageListener {
 
             producer.send(message.getJMSReplyTo(), replyMessage);
 
+            message.acknowledge();
+
         } catch (JMSException e) {
             throw new RuntimeException(e);
         }

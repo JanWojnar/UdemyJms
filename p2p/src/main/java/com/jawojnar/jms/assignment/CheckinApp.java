@@ -20,18 +20,18 @@ public class CheckinApp {
 
         try (
                 ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory();
-                JMSContext jmsContext = cf.createContext();
+                JMSContext jmsContext = cf.createContext(JMSContext.SESSION_TRANSACTED);
         ){
             JMSProducer producer = jmsContext.createProducer();
             JMSConsumer replyConsumer = jmsContext.createConsumer(replyQueue);
 
-            Passenger passenger = new Passenger();
-            passenger.setFirstName("Jan");
-            passenger.setLastName("Wojnar");
-            passenger.setEmail("rudydodomu@gmail.com");
-            passenger.setPhone("213 721 372");
+            for(int i = 0 ; i<3 ; i++) {
 
-            for(int i = 0 ; i<10 ; i++) {
+                Passenger passenger = new Passenger();
+                passenger.setFirstName("Jan");
+                passenger.setLastName("Wojnar " + i+1);
+                passenger.setEmail("rudydodomu@gmail.com");
+                passenger.setPhone("213 721 372");
 
                 ObjectMessage objectMessage = jmsContext.createObjectMessage();
                 passenger.setId(LocalDateTime.now().getNano());
@@ -41,9 +41,14 @@ public class CheckinApp {
 
                 producer.send(requestQueue,objectMessage);
 
-                System.out.println("CheckinApp sending message with messageId: " + objectMessage.getJMSMessageID());
-            }
+                if(i!=2){
+                    jmsContext.commit();
+                    System.out.println("CheckinApp sending message with messageId: " + objectMessage.getJMSMessageID());
 
+                } else {
+                    jmsContext.rollback();
+                }
+            }
 
             MapMessage replyMessage = null;
             do{
@@ -58,6 +63,4 @@ public class CheckinApp {
             throw new RuntimeException(e);
         }
     }
-
-
 }
